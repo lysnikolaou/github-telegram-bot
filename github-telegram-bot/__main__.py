@@ -5,18 +5,25 @@ from aiohttp import web
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 from telegram import Bot
+from telegram import Message
 
 router = routing.Router()
 
 
-@router.register("pull_requests", action="opened")
+MESSAGE = """
+Hey guys, there's a new PR [here]({url}). Someone might wanna check it out?
+"""
+
+
+@router.register("pull_request", action="opened")
+@router.register("pull_request", action="reopened")
 def send_telegram_message(event, gh, *args, **kwargs):
-    url = event.data['pull_request']['url']
+    url = event.data['pull_request']['html_url']
 
     bot_token = os.environ.get("BOT_TOKEN")
     chat_id = os.environ.get("BOT_CHAT_ID")
     telegram_bot = Bot(bot_token)
-    telegram_bot.send_message(chat_id, 'Hey guys')
+    telegram_bot.send_message(chat_id, MESSAGE.format(url=url), 'Markdown')
 
 
 async def main(request):
