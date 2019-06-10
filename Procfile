@@ -1,1 +1,1 @@
-web: python3 -m github-telegram-bot
+web: python3 -m github_telegram_bot
