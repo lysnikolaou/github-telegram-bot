@@ -8,27 +8,21 @@ from gidgethub import aiohttp as gh_aiohttp
 from github_telegram_bot.creds import get_github_credentials
 from github_telegram_bot.telegram import send_telegram_message
 from github_telegram_bot.github_issue import parse_github_issue
-from github_telegram_bot.google import update_google_spreadsheets_backlog
+from github_telegram_bot.google import update_row_google_spreadsheets_backlog
 
 
 router = routing.Router()
 
 @router.register("issues", action="opened")
 @router.register("issues", action="reopened")
-@router.register("issues", action="edited")
-@router.register("issues", action="milestoned")
 async def new_issue(event, gh, *args, **kwargs):
     issue_title = event.data['issue']['title']
-    issue_text = event.data['issue']['body']
     issue_url = event.data['issue']['html_url']
-    issue_milestone = event.data['issue']['milestone'].get('title', '')
     spreadsheet_data = parse_github_issue(
         issue_title,
-        issue_text,
-        issue_url,
-        issue_milestone
+        issue_url
     )
-    update_google_spreadsheets_backlog(spreadsheet_data)
+    update_row_google_spreadsheets_backlog(spreadsheet_data)
 
 @router.register("pull_request", action="opened")
 @router.register("pull_request", action="reopened")
